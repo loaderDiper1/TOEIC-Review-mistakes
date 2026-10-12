@@ -1,0 +1,48 @@
+import { ReviewItem } from '../types';
+import { buildMistakeRecord } from '../questionMaster';
+
+/**
+ * Stephen — TOEIC Practice Test 1 Reading Mistake Records
+ */
+export const STEPHEN_MISTAKES: ReviewItem[] = [
+  buildMistakeRecord(101, 'C', 'A'),
+  buildMistakeRecord(104, 'C', 'B'),
+  buildMistakeRecord(105, 'D', 'A'),
+  buildMistakeRecord(107, 'B', 'D'),
+  buildMistakeRecord(112, 'B', 'A'),
+  buildMistakeRecord(118, 'C', 'D'),
+  buildMistakeRecord(119, 'C', 'D'),
+  buildMistakeRecord(125, 'C', 'B'),
+  buildMistakeRecord(126, 'A', 'C'),
+  buildMistakeRecord(127, 'D', 'A'),
+  buildMistakeRecord(128, 'C', 'D'),
+  buildMistakeRecord(134, 'B', 'D'),
+  buildMistakeRecord(135, 'A', 'B'),
+  buildMistakeRecord(140, 'C', 'B'),
+  buildMistakeRecord(144, 'C', 'B'),
+  buildMistakeRecord(145, 'D', 'C'),
+  buildMistakeRecord(147, 'D', 'A'),
+  buildMistakeRecord(148, 'A', 'C'),
+  buildMistakeRecord(151, 'D', 'B'),
+  buildMistakeRecord(153, 'C', 'A'),
+  buildMistakeRecord(156, 'A', 'B'),
+  buildMistakeRecord(157, 'C', 'D'),
+  buildMistakeRecord(158, 'C', 'B'),
+  buildMistakeRecord(160, 'D', 'A'),
+  buildMistakeRecord(162, 'C', 'B'),
+  buildMistakeRecord(163, 'C', 'D'),
+  buildMistakeRecord(164, 'D', 'C'),
+  buildMistakeRecord(165, 'D', 'C'),
+  buildMistakeRecord(166, 'D', 'C'),
+  buildMistakeRecord(169, 'D', 'C'),
+  buildMistakeRecord(170, 'B', 'D'),
+  buildMistakeRecord(171, 'C', 'B'),
+  buildMistakeRecord(173, 'D', 'A'),
+  buildMistakeRecord(175, 'A', 'C'),
+  buildMistakeRecord(177, 'D', 'D'),
+  buildMistakeRecord(178, 'A', 'A'),
+  buildMistakeRecord(193, 'C', 'D'),
+  buildMistakeRecord(194, 'C', 'B'),
+  buildMistakeRecord(196, 'A', 'C'),
+  buildMistakeRecord(198, 'A', 'B'),
+];

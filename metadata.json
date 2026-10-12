@@ -1,0 +1,6 @@
+{
+  "name": "Alice - TOEIC Reading Review",
+  "description": "Personalized review of incorrect answers for TOEIC Practice Test 1 Reading for Alice, with complete explanations, grammar rules, and reading comprehension reasoning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
