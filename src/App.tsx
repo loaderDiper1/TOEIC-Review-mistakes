@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getStudentById } from './data/students';
 import { StudentAccount } from './data/types';
 import { LoginView } from './components/LoginView';
@@ -21,13 +21,10 @@ export default function App() {
   });
 
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [showBottomNav, setShowBottomNav] = useState(true);
-  const lastScrollYRef = useRef(0);
 
   const handleLogin = (student: StudentAccount) => {
     setCurrentStudent(student);
     setSelectedIndex(0);
-    setShowBottomNav(true);
     try {
       sessionStorage.setItem('active_student_id', student.id);
     } catch {
@@ -53,7 +50,6 @@ export default function App() {
     if (selectedIndex > 0) {
       setSelectedIndex(selectedIndex - 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      setShowBottomNav(true);
     }
   };
 
@@ -61,14 +57,12 @@ export default function App() {
     if (selectedIndex < total - 1) {
       setSelectedIndex(selectedIndex + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      setShowBottomNav(true);
     }
   };
 
   const handleSelectIndex = (index: number) => {
     setSelectedIndex(index);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setShowBottomNav(true);
   };
 
   // Keyboard navigation with ArrowLeft / ArrowRight
@@ -88,32 +82,6 @@ export default function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedIndex, currentStudent, total]);
-
-  // Hide bottom nav on scroll down, sticky show on scroll up
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const diff = currentScrollY - lastScrollYRef.current;
-
-      // Always show when near top or when scrolled to the very bottom
-      if (currentScrollY <= 40 || windowHeight + currentScrollY >= documentHeight - 60) {
-        setShowBottomNav(true);
-      } else if (diff > 8) {
-        // Scrolling down -> hide
-        setShowBottomNav(false);
-      } else if (diff < -8) {
-        // Scrolling up -> show
-        setShowBottomNav(true);
-      }
-
-      lastScrollYRef.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // If not logged in, show the login view
   if (!currentStudent) {
@@ -136,19 +104,65 @@ export default function App() {
   }));
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-900 pb-28 sm:pb-32">
-      {/* Space-Saving Minimal Header: Student Name on left, Log Out on right */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xs border-b border-stone-200 px-4 py-2.5 shadow-2xs">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-stone-50 text-stone-900 pb-16">
+      {/* Sticky Top Navigation Bar: Student Name, Prev/Numbers/Next Navigation, Log Out */}
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200 px-4 py-2 sm:py-2.5 shadow-2xs">
+        <div className="max-w-4xl mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3">
           {/* Top Left: Student Name only */}
-          <div className="flex items-center">
+          <div className="flex items-center min-w-[90px] shrink-0">
             <span className="text-base font-bold text-stone-900 tracking-tight">
               {currentStudent.name}
             </span>
           </div>
 
+          {/* Top Center: Question Navigation (Prev, 5 numbers, Next) */}
+          {total > 0 && (
+            <nav aria-label="Question Navigation" className="flex items-center gap-1 sm:gap-1.5 order-last sm:order-none w-full sm:w-auto justify-center">
+              <button
+                type="button"
+                disabled={selectedIndex === 0}
+                onClick={goToPrevious}
+                className="flex items-center gap-0.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-md text-blue-600 hover:bg-blue-50 disabled:text-stone-300 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors cursor-pointer"
+                title="Previous question (Left Arrow)"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Prev</span>
+              </button>
+
+              {visibleItems.map(({ item, index }) => {
+                const isActive = index === selectedIndex;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleSelectIndex(index)}
+                    className={`min-w-8 h-8 px-2 flex items-center justify-center rounded-md text-xs font-mono transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-blue-600 text-white font-bold shadow-xs'
+                        : 'text-blue-600 hover:bg-blue-50 hover:text-blue-800 font-medium'
+                    }`}
+                    title={`Question ${item.questionNumber} (${item.partShort})`}
+                  >
+                    {item.questionNumber}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                disabled={selectedIndex === total - 1}
+                onClick={goToNext}
+                className="flex items-center gap-0.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-md text-blue-600 hover:bg-blue-50 disabled:text-stone-300 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors cursor-pointer"
+                title="Next question (Right Arrow)"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </nav>
+          )}
+
           {/* Top Right: Log Out button only */}
-          <div className="flex items-center">
+          <div className="flex items-center justify-end min-w-[90px] shrink-0">
             <button
               type="button"
               onClick={handleLogout}
@@ -197,61 +211,6 @@ export default function App() {
           </>
         )}
       </main>
-
-      {/* Sticky Bottom Navigation: Shows when scrolling up, hides when scrolling down */}
-      {total > 0 && (
-        <nav
-          aria-label="Question Navigation"
-          className={`fixed bottom-0 inset-x-0 z-30 pointer-events-none transition-transform duration-300 ease-in-out ${
-            showBottomNav ? 'translate-y-0' : 'translate-y-24'
-          }`}
-        >
-          <div className="max-w-4xl mx-auto px-4 pb-4 pt-2 flex justify-center">
-            <div className="pointer-events-auto bg-white/95 backdrop-blur-md border border-stone-200/90 shadow-lg rounded-full px-3 py-1.5 sm:px-4 sm:py-2 flex items-center gap-1 sm:gap-2">
-              <button
-                type="button"
-                disabled={selectedIndex === 0}
-                onClick={goToPrevious}
-                className="flex items-center gap-0.5 px-3 py-1.5 text-xs font-semibold rounded-full text-blue-600 hover:bg-blue-50 disabled:text-stone-300 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors cursor-pointer"
-                title="Previous question (Left Arrow)"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Prev</span>
-              </button>
-
-              {visibleItems.map(({ item, index }) => {
-                const isActive = index === selectedIndex;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleSelectIndex(index)}
-                    className={`min-w-8 h-8 px-2 flex items-center justify-center rounded-full text-xs font-mono transition-all cursor-pointer ${
-                      isActive
-                        ? 'bg-blue-600 text-white font-bold shadow-xs scale-105'
-                        : 'text-blue-600 hover:bg-blue-50 hover:text-blue-800 font-medium'
-                    }`}
-                    title={`Question ${item.questionNumber} (${item.partShort})`}
-                  >
-                    {item.questionNumber}
-                  </button>
-                );
-              })}
-
-              <button
-                type="button"
-                disabled={selectedIndex === total - 1}
-                onClick={goToNext}
-                className="flex items-center gap-0.5 px-3 py-1.5 text-xs font-semibold rounded-full text-blue-600 hover:bg-blue-50 disabled:text-stone-300 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors cursor-pointer"
-                title="Next question (Right Arrow)"
-              >
-                <span>Next</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </nav>
-      )}
     </div>
   );
 }
